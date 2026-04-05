@@ -70,7 +70,7 @@ export default function Rapports() {
     <div>
       <div className="page-header fade-up">
         <div className="page-title">Rapports IA</div>
-        <div className="page-sub">Analyse de Gemini 1.5 Pro • 1M tokens de contexte</div>
+        <div className="page-sub">Analyse de Gemini 2.5 Flash • Pax Historia FR</div>
       </div>
 
       <div className="grid-2 stagger">

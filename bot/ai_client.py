@@ -76,12 +76,7 @@ class AIClient:
 
     async def call(self, prompt: str) -> str:
         try:
-            if AI_PROVIDER == "groq" and GROQ_API_KEY:
-                return await self._call_groq(prompt)
-            elif GEMINI_API_KEY:
-                return await self._call_gemini(prompt)
-            else:
-                return "❌ Aucune clé API configurée (GEMINI_API_KEY ou GROQ_API_KEY)."
+            return await self._call_groq(prompt)
         except Exception as e:
             log.error(f"AI call failed: {e}")
             return f"❌ Erreur IA : {e}"

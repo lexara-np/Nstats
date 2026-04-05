@@ -56,7 +56,7 @@ export default function Overview({ stats }) {
                     flex: 1,
                     height: `${(a.count / maxCount) * 100}%`,
                     minHeight: "2px",
-                    background: `linear-gradient(180deg, #c084fc, #7b2fbe)`,
+                    background: `linear-gradient(180deg, var(--or-300), var(--or-700))`,
                     borderRadius: "2px 2px 0 0",
                     opacity: 0.6 + (a.count / maxCount) * 0.4,
                     transition: "opacity 0.2s",

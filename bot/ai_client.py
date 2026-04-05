@@ -19,7 +19,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GROQ_API_KEY   = os.getenv("GROQ_API_KEY")
 AI_PROVIDER    = os.getenv("AI_PROVIDER", "gemini")  # "gemini" ou "groq"
 
-GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent"
 GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions"
 
 SYSTEM_PROMPT = """Tu es l'analyste officiel du serveur Discord NationRP.
@@ -100,77 +100,204 @@ class AIClient:
             for m in sample if m["content"].strip()
         )
 
-        prompt = f"""Analyse le salon Discord #{channel_name} d'un serveur NationRP.
+        # Détecte le type de salon pour adapter l'analyse
+        canal_type = "général"
+        if any(x in channel_name for x in ["diplomatie", "traité", "alliance", "onu", "otsc", "apu", "acse", "aei"]):
+            canal_type = "diplomatique"
+        elif any(x in channel_name for x in ["guerre", "action", "militaire", "occupation"]):
+            canal_type = "militaire"
+        elif any(x in channel_name for x in ["vente", "économie", "territoire", "commerce"]):
+            canal_type = "économique"
+        elif any(x in channel_name for x in ["tribunal", "séance", "jugement"]):
+            canal_type = "judiciaire"
+        elif any(x in channel_name for x in ["propagande", "rumeur", "worldvision", "citation"]):
+            canal_type = "médiatique"
+        elif any(x in channel_name for x in ["france", "allemagne", "usa", "urss", "chine", "japon",
+                                               "arabie", "brésil", "inde", "italie", "suède", "danemark",
+                                               "norvège", "pays-bas", "suisse", "nigéria", "australie",
+                                               "pérou", "grèce", "portugal", "espagne", "belgique",
+                                               "canada", "sénégal", "islande", "cote-divoire", "rpu",
+                                               "goryeo", "jerusalem"]):
+            canal_type = "national"
 
-MESSAGES (derniers {len(sample)}) :
+        prompt = f"""Tu es l'analyste officiel de PAX HISTORIA FR, un serveur Discord de NationRP moderne (155 membres).
+Le monde RP est divisé en nations qui interagissent diplomatiquement, économiquement et militairement.
+Les organisations internationales actives sont : ONU, OTSC, APU, ACSE, AEI.
+
+Tu analyses le salon #{channel_name} (type : {canal_type}).
+
+RÈGLES D'ANALYSE STRICTES :
+- Identifie les nations et joueurs impliqués par leurs noms Discord
+- Détecte les tensions, alliances, trahisons, conflits larvés
+- Repère les actions RP significatives (déclarations de guerre, traités, ventes de territoire, jugements)
+- Évalue la qualité du RP (cohérence, immersion, respect des règles)
+- Signale tout abus, hors-RP, ou comportement problématique
+- Sois précis et factuel, pas généraliste
+
+MESSAGES À ANALYSER (derniers {len(sample)}) :
 {conversation}
 
-Génère un rapport structuré incluant :
-1. 📋 **Résumé** — De quoi parle ce salon ? (2-3 phrases)
-2. 🎭 **Activité RP** — Niveau d'immersion, qualité des échanges
-3. 👥 **Membres actifs** — Qui contribue le plus et comment
-4. 📈 **Tendances** — Sujets récurrents, évolutions notables
-5. ⚡ **Points chauds** — Conflits, alliances, événements majeurs
-6. 💡 **Recommandations** — Comment améliorer ce salon
+RAPPORT STRUCTURÉ OBLIGATOIRE :
 
-Rapport daté du {datetime.utcnow().strftime('%d/%m/%Y')}."""
+🗂️ **RÉSUMÉ EXÉCUTIF**
+[2-3 phrases sur ce qui s'est passé dans ce salon]
+
+{'🤝 **ANALYSE DIPLOMATIQUE**' if canal_type == 'diplomatique' else ''}
+{'[Traités signés, négociations en cours, positions des nations, tensions diplomatiques détectées]' if canal_type == 'diplomatique' else ''}
+
+{'⚔️ **SITUATION MILITAIRE**' if canal_type == 'militaire' else ''}
+{'[Actions de guerre, territoires disputés, forces en présence, résultats des conflits]' if canal_type == 'militaire' else ''}
+
+{'💰 **ANALYSE ÉCONOMIQUE**' if canal_type == 'économique' else ''}
+{'[Transactions réalisées, territoires vendus/achetés, valeurs échangées, nations impliquées]' if canal_type == 'économique' else ''}
+
+{'⚖️ **COMPTE-RENDU JUDICIAIRE**' if canal_type == 'judiciaire' else ''}
+{'[Affaires jugées, verdicts rendus, nations condamnées, respect de la procédure]' if canal_type == 'judiciaire' else ''}
+
+{'📢 **ANALYSE MÉDIATIQUE**' if canal_type == 'médiatique' else ''}
+{'[Propagandes diffusées, rumeurs en circulation, opinion publique RP, influence des médias]' if canal_type == 'médiatique' else ''}
+
+{'🏴 **SITUATION NATIONALE**' if canal_type == 'national' else ''}
+{'[État intérieur du pays, décisions gouvernementales, relations avec les voisins, niveau d activité du joueur]' if canal_type == 'national' else ''}
+
+👥 **JOUEURS ACTIFS**
+[Liste des joueurs impliqués avec leur rôle et niveau de participation]
+
+⚠️ **ALERTES & SIGNALEMENTS**
+[Violations du règlement RP, comportements hors-RP, conflits OOC, inactivité prolongée]
+
+📊 **SCORE D'ACTIVITÉ RP**
+[Note sur 10 avec justification : qualité de l'immersion, cohérence narrative, respect des règles]
+
+💡 **RECOMMANDATIONS ADMIN**
+[Actions concrètes à prendre sur ce salon]
+
+Rapport du {datetime.utcnow().strftime('%d/%m/%Y à %H:%M')} UTC"""
 
         return await self.call(prompt)
 
     async def generate_server_rapport(self, stats: dict, recent_messages: list) -> str:
-        sample = recent_messages[:300]
+        sample = recent_messages[:400]
         conversation = "\n".join(
             f"[#{m['channel']}] {m['author']}: {m['content']}"
             for m in sample if m["content"].strip()
-        )[:8000]
+        )[:10000]
 
-        prompt = f"""Analyse globale du serveur NationRP.
+        top_channels = "\n".join(
+            f"  #{c['name']} : {c['count']} messages"
+            for c in stats.get("top_channels", [])
+        )
 
-STATISTIQUES :
-- Messages totaux : {stats.get('total_messages', 0):,}
-- Membres actifs : {stats.get('active_members', 0)}
-- Salons capturés : {stats.get('channels', 0)}
+        prompt = f"""Tu es l'analyste géopolitique officiel de PAX HISTORIA FR.
+Serveur NationRP moderne français — 155 membres — nations du monde entier.
+
+CONTEXTE DU SERVEUR :
+- Salons RP principaux : diplomatie, action-guerre, propagande, rumeur, worldvision, tribunal, vente-territoire, traité-de-paix
+- Organisations internationales : ONU, OTSC (alliance militaire), APU, ACSE, AEI
+- Pays jouables actifs : France, Allemagne, USA, URSS, Chine, Japon, Arabie Saoudite, Inde, Brésil, Italie, Suède, Danemark, Norvège, Pays-Bas, Suisse, Nigéria, Australie, Pérou, Grèce, Fédération Sainte de Jérusalem, RPU-Goryeo, Côte d'Ivoire
+- Pays anciennement joués (inactifs) : Belgique, Canada, Égypte, Espagne, Portugal, Sénégal, Islande
+
+STATISTIQUES ACTUELLES :
+- Messages totaux capturés : {stats.get('total_messages', 0):,}
+- Joueurs actifs : {stats.get('active_members', 0)}
+- Salons indexés : {stats.get('channels', 0)}
 - Salon le plus actif : #{stats.get('top_channel', 'N/A')}
 
-TOP SALONS :
-{json.dumps(stats.get('top_channels', []), ensure_ascii=False, indent=2)}
+ACTIVITÉ PAR SALON :
+{top_channels}
 
-APERÇU DES MESSAGES RÉCENTS :
+APERÇU DES ÉCHANGES RÉCENTS :
 {conversation}
 
-Génère un rapport de gouvernance complet :
-1. 🌍 **État du serveur** — Santé générale de la communauté
-2. 🏆 **Nations actives** — Qui joue, qui s'investit
-3. ⚔️ **Dynamiques politiques** — Alliances, conflits, diplomatie
-4. 📊 **Analyse d'engagement** — Heures de pointe, rétention
-5. 🚨 **Alertes** — Inactivité, tensions, problèmes détectés
-6. 🎯 **Plan d'action** — 5 recommandations prioritaires pour les admins
+RAPPORT GÉOPOLITIQUE GLOBAL OBLIGATOIRE :
 
-Rapport daté du {datetime.utcnow().strftime('%d/%m/%Y')}."""
+🌍 **ÉTAT DU MONDE PAX HISTORIA**
+[Situation géopolitique globale : qui est en guerre, qui négocie, qui domine]
+
+🏆 **CLASSEMENT DES NATIONS ACTIVES**
+[Rank les nations du plus actif au moins actif avec analyse de leur influence RP]
+
+⚔️ **CONFLITS EN COURS**
+[Guerres actives, tensions militaires, occupations, résistances]
+
+🤝 **ALLIANCES & BLOCS**
+[État des organisations : ONU, OTSC, APU, ACSE, AEI — qui les contrôle, qui est en désaccord]
+
+💰 **ÉCONOMIE & TERRITOIRE**
+[Transactions récentes, équilibre des puissances économiques, territoires disputés]
+
+📺 **OPINION PUBLIQUE RP**
+[Ce qui circule dans propagande/rumeur/worldvision — narrative dominante]
+
+⚠️ **NATIONS EN DANGER**
+[Pays inactifs risquant d'être abandonnés, joueurs absents, nations isolées]
+
+🚨 **ALERTES ADMIN PRIORITAIRES**
+[Problèmes urgents : règles violées, conflits OOC, déséquilibres majeurs, abus de pouvoir RP]
+
+🎯 **PLAN D'ACTION — 7 PRIORITÉS CETTE SEMAINE**
+[Actions concrètes et numérotées que les admins doivent faire cette semaine pour améliorer le serveur]
+
+📈 **SANTÉ GLOBALE DU SERVEUR**
+[Score sur 10 avec tendance : en progression, stable ou en déclin — et pourquoi]
+
+Rapport géopolitique du {datetime.utcnow().strftime('%d/%m/%Y à %H:%M')} UTC
+Généré par le système NationStats Analytics"""
 
         return await self.call(prompt)
 
     async def generate_conseils(self, stats: dict, messages: list) -> str:
-        sample = messages[:200]
-        activity = "\n".join(
-            f"- {c['name']} : {c['count']} messages"
-            for c in stats.get("top_channels", [])
+        sample = messages[:300]
+
+        # Analyse les salons les moins actifs
+        top_channels = stats.get("top_channels", [])
+        salons_actifs = [c["name"] for c in top_channels[:5]]
+        salons_inactifs = [c["name"] for c in top_channels[-5:]] if len(top_channels) > 5 else []
+
+        activite = "\n".join(f"  #{c['name']} : {c['count']} msgs" for c in top_channels)
+
+        # Extrait un aperçu des derniers échanges
+        apercu = "\n".join(
+            f"[#{m['channel']}] {m['author']}: {m['content'][:100]}"
+            for m in sample[:100] if m["content"].strip()
         )
 
-        prompt = f"""Tu conseilles les admins d'un serveur NationRP.
+        prompt = f"""Tu es le conseiller stratégique de PAX HISTORIA FR, serveur NationRP moderne français.
 
-DONNÉES ACTUELLES :
-{activity}
+CONTEXTE :
+- 155 membres, nations du monde entier
+- Organisations : ONU, OTSC, APU, ACSE, AEI
+- Salons clés : diplomatie, action-guerre, propagande, rumeur, worldvision, tribunal, vente-territoire, traité-de-paix, classements, sommet-de-la-paix, pays-libres, les-alliances, résumé-rp
+
+DONNÉES D'ACTIVITÉ :
+{activite}
+
 Membres actifs : {stats.get('active_members', 0)}
 Total messages : {stats.get('total_messages', 0):,}
+Salons les + actifs : {', '.join(f'#{s}' for s in salons_actifs)}
+Salons peu actifs : {', '.join(f'#{s}' for s in salons_inactifs)}
 
-Donne 5 conseils concrets et actionnables pour :
-- Augmenter l'engagement des joueurs
-- Améliorer la qualité du RP
-- Équilibrer l'activité entre nations
-- Créer des événements pertinents
-- Fidéliser la communauté
+APERÇU DES ÉCHANGES :
+{apercu}
 
-Chaque conseil doit avoir : une action précise, pourquoi c'est utile, et comment le mettre en place."""
+Génère 7 conseils CONCRETS ET SPÉCIFIQUES à Pax Historia FR pour améliorer le serveur.
+Chaque conseil doit suivre ce format exact :
+
+**[NUMÉRO] — [TITRE DU CONSEIL]**
+🎯 Objectif : [Ce que ça va changer]
+📋 Comment faire : [Étapes précises et réalistes]
+⏱️ Délai suggéré : [Immédiat / Cette semaine / Ce mois]
+💥 Impact attendu : [Faible / Moyen / Élevé]
+
+Les conseils doivent couvrir :
+1. Un événement RP spécial à organiser (basé sur l'actualité du serveur)
+2. Une nation inactive à relancer ou redistribuer
+3. Une amélioration des organisations internationales (ONU/OTSC/etc.)
+4. Un équilibrage diplomatique ou militaire nécessaire
+5. Une idée pour attirer de nouveaux joueurs
+6. Une amélioration du système de classement ou récompenses
+7. Un conseil sur la modération ou les règles RP
+
+Sois précis, actionnable, et adapté à ce serveur spécifiquement. Pas de conseils génériques."""
 
         return await self.call(prompt)

@@ -8,6 +8,7 @@ import Conflits   from "./pages/Conflits"
 import Messages   from "./pages/Messages"
 import Members    from "./pages/Members"
 import Rapports   from "./pages/Rapports"
+import Chat       from "./pages/Chat"
 import "./styles/global.css"
 
 const NAV = [
@@ -19,6 +20,7 @@ const NAV = [
   { to: "/messages",   label: "Messages RP",      icon: "◇" },
   { to: "/members",    label: "Membres",          icon: "◉" },
   { to: "/rapports",   label: "Rapports IA",      icon: "✦" },
+  { to: "/chat",       label: "Chat IA",          icon: "💬" },
 ]
 
 export default function App() {
@@ -75,9 +77,10 @@ export default function App() {
             <Route path="/messages"   element={<Messages />} />
             <Route path="/members"    element={<Members />} />
             <Route path="/rapports"   element={<Rapports />} />
+            <Route path="/chat"       element={<Chat />} />
           </Routes>
         </main>
       </div>
     </Router>
   )
-                }
+}

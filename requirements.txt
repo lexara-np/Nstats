@@ -1,0 +1,10 @@
+# Bot Discord
+discord.py>=2.3.0
+python-dotenv>=1.0.0
+aiohttp>=3.9.0
+aiosqlite>=0.20.0
+
+# Backend FastAPI
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.7.0

@@ -1,11 +1,14 @@
+cat > /workspaces/Nstats/nixpacks.toml << 'EOF'
 [phases.setup]
 nixPkgs = ["python311", "nodejs_20"]
 
 [phases.install]
 cmds = [
-  "pip install -r requirements.txt",
-  "cd frontend && npm install && npm run build"
+    "pip3 install -r requirements.txt",
+      "cd frontend && npm install && npm run build"
 ]
 
 [start]
-cmd = "python backend/main.py"
+cmd = "python3 start.py"
+EOF
+]

@@ -1,4 +1,3 @@
-rm /workspaces/Nstats/nixpacks.toml
 cat > /workspaces/Nstats/Dockerfile << 'EOF'
 FROM python:3.11-slim
 

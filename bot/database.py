@@ -1,3 +1,4 @@
+import os
 """
 Database — SQLite async via aiosqlite
 Stocke messages, salons, stats, rapports générés

@@ -48,7 +48,12 @@ class RapportRequest(BaseModel):
     channel_name: str
 
 class RapportTypeRequest(BaseModel):
-    type: str  # "diplomatie" | "guerre" | "economie"
+    type: str
+
+class ChatRequest(BaseModel):
+    question: str
+    context:  str = ""
+    history:  list = []
 
 # ═══════════════════════════════════════════
 #  ROUTES — DONNÉES
@@ -70,7 +75,7 @@ async def get_channel_messages(channel_id: str, limit: int = 200):
     return msgs
 
 @app.get("/api/messages")
-async def get_messages(limit: int = 500, channel: str = None):
+async def get_messages(limit: int = 15000, channel: str = None):
     if channel:
         async with aiosqlite.connect(DB_PATH) as conn:
             conn.row_factory = aiosqlite.Row
@@ -268,6 +273,13 @@ async def generate_economie_rapport():
     await db.save_rapport(None, "economie", rapport)
     return {"rapport": rapport}
 
+@app.post("/api/chat")
+async def chat(req: ChatRequest):
+    """Chat direct avec l'IA avec contexte du serveur."""
+    response = await ai.chat(req.question, req.context, req.history)
+    return {"response": response}
+
+
 @app.post("/api/refresh-stats")
 async def refresh_stats():
     log.info("🔄 Refresh stats déclenché par le bot")
@@ -288,4 +300,3 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
-        

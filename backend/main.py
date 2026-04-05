@@ -280,6 +280,22 @@ async def chat(req: ChatRequest):
     return {"response": response}
 
 
+@app.get("/api/classements")
+async def get_classements():
+    """Récupère les messages du salon #classement et les parse."""
+    async with aiosqlite.connect(DB_PATH) as conn:
+        conn.row_factory = aiosqlite.Row
+        cur = await conn.execute("""
+            SELECT content, author, timestamp FROM messages
+            WHERE channel LIKE '%classement%'
+            AND LENGTH(content) > 100
+            ORDER BY timestamp DESC
+            LIMIT 50
+        """)
+        rows = await cur.fetchall()
+        return [dict(r) for r in rows]
+
+
 @app.post("/api/refresh-stats")
 async def refresh_stats():
     log.info("🔄 Refresh stats déclenché par le bot")

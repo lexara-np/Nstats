@@ -1,5 +1,20 @@
 import { useState, useEffect } from "react"
 
+// Convertit le markdown basique en HTML
+const renderMarkdown = (text) => {
+  if (!text) return ""
+  return text
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,  '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,   '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+    .replace(/^---$/gm,        '<hr/>')
+    .replace(/^- (.+)$/gm,    '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+    .replace(/\n/g, '<br/>')
+}
+
 export default function Rapports() {
   const [channels, setChannels]   = useState([])
   const [rapports, setRapports]   = useState([])
@@ -130,7 +145,10 @@ export default function Rapports() {
           {result && (
             <div style={{ marginTop: 20 }}>
               <div className="card-title" style={{ marginBottom: 10 }}>Résultat</div>
-              <div className="rapport-box">{result}</div>
+              <div
+                className="rapport-box"
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(result) }}
+              />
             </div>
           )}
         </div>
@@ -169,11 +187,11 @@ export default function Rapports() {
                     color: "var(--text-secondary)",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    whiteSpace: activeRap?.id === r.id ? "pre-wrap" : "nowrap",
+                    whiteSpace: activeRap?.id === r.id ? "normal" : "nowrap",
                     maxHeight: activeRap?.id === r.id ? "none" : "1.4em",
-                  }}>
-                    {r.content}
-                  </div>
+                  }}
+                    dangerouslySetInnerHTML={{ __html: activeRap?.id === r.id ? renderMarkdown(r.content) : r.content.slice(0, 80) + "…" }}
+                  />
                 </div>
               ))}
             </div>

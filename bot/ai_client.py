@@ -62,7 +62,7 @@ class AIClient:
                 {"role": "user",    "content": prompt},
             ],
             "temperature": 0.7,
-            "max_tokens":  4000,
+            "max_tokens":  6000,
         }
 
         async with aiohttp.ClientSession() as session:
@@ -91,7 +91,7 @@ class AIClient:
         conversation = "\n".join(
             f"[{m['timestamp'][:10]}] {m['author']}: {m['content']}"
             for m in sample if m["content"].strip()
-        )[:5000]
+        )[:20000]
 
         # Détecte le type de salon pour adapter l'analyse
         canal_type = "général"
@@ -174,7 +174,7 @@ Rapport du {datetime.utcnow().strftime('%d/%m/%Y à %H:%M')} UTC"""
         conversation = "\n".join(
             f"[#{m['channel']}] {m['author']}: {m['content']}"
             for m in sample if m["content"].strip()
-        )[:4000]
+        )[:15000]
 
         top_channels = "\n".join(
             f"  #{c['name']} : {c['count']} messages"
@@ -294,3 +294,122 @@ Les conseils doivent couvrir :
 Sois précis, actionnable, et adapté à ce serveur spécifiquement. Pas de conseils génériques."""
 
         return await self.call(prompt)
+
+    async def generate_diplomatie_rapport(self, messages: list) -> str:
+        if not messages:
+            return "Aucun message diplomatique à analyser."
+        sample = messages[:4000]
+        conversation = "\n".join(
+            f"[#{m['channel']}] [{m['timestamp'][:10]}] {m['author']}: {m['content']}"
+            for m in sample if m["content"].strip()
+        )[:20000]
+
+        prompt = f"""Tu es l'analyste diplomatique officiel de PAX HISTORIA FR.
+
+MESSAGES DIPLOMATIQUES RÉCENTS :
+{conversation}
+
+RAPPORT DIPLOMATIQUE COMPLET :
+
+🌍 **ÉTAT DES RELATIONS INTERNATIONALES**
+[Cartographie complète des alliances et tensions entre nations]
+
+🤝 **ORGANISATIONS ACTIVES**
+- ONU : [membres actifs, résolutions récentes, conflits internes]
+- OTSC : [membres, opérations militaires, cohésion]
+- APU : [activité, projets, tensions]
+- ACSE : [état, membres, décisions]
+- AEI : [activité récente]
+
+📜 **TRAITÉS & ACCORDS RÉCENTS**
+[Liste des traités signés, en négociation, ou rompus]
+
+⚡ **TENSIONS DIPLOMATIQUES**
+[Conflits diplomatiques, ruptures de relations, ultimatums]
+
+🏆 **NATIONS LES PLUS INFLUENTES**
+[Classement par influence diplomatique avec justification]
+
+🎯 **PRÉVISIONS**
+[Quelles alliances vont se former ou se briser prochainement ?]
+
+Rapport du {datetime.utcnow().strftime('%d/%m/%Y à %H:%M')} UTC"""
+        return await self.call(prompt)
+
+    async def generate_guerre_rapport(self, messages: list) -> str:
+        if not messages:
+            return "Aucun message militaire à analyser."
+        sample = messages[:4000]
+        conversation = "\n".join(
+            f"[#{m['channel']}] [{m['timestamp'][:10]}] {m['author']}: {m['content']}"
+            for m in sample if m["content"].strip()
+        )[:20000]
+
+        prompt = f"""Tu es l'analyste militaire officiel de PAX HISTORIA FR.
+
+MESSAGES MILITAIRES & PROPAGANDE RÉCENTS :
+{conversation}
+
+RAPPORT MILITAIRE COMPLET :
+
+⚔️ **CONFLITS ACTIFS**
+[Liste de toutes les guerres en cours avec belligérants, causes, état actuel]
+
+🗺️ **TERRITOIRES DISPUTÉS**
+[Zones de combat, occupations, résistances]
+
+💣 **ACTIONS MILITAIRES RÉCENTES**
+[Attaques, défenses, batailles, résultats]
+
+📢 **PROPAGANDE & DÉSINFORMATION**
+[Narratives diffusées par chaque camp, rumeurs, fake news RP]
+
+⚖️ **BILAN DES FORCES**
+[Qui domine militairement et pourquoi]
+
+🔮 **PRÉVISIONS MILITAIRES**
+[Quels conflits vont éclater ou se terminer prochainement ?]
+
+🚨 **ALERTES**
+[Escalades dangereuses, violations de cessez-le-feu, provocations]
+
+Rapport du {datetime.utcnow().strftime('%d/%m/%Y à %H:%M')} UTC"""
+        return await self.call(prompt)
+
+    async def generate_economie_rapport(self, messages: list) -> str:
+        if not messages:
+            return "Aucun message économique à analyser."
+        sample = messages[:4000]
+        conversation = "\n".join(
+            f"[#{m['channel']}] [{m['timestamp'][:10]}] {m['author']}: {m['content']}"
+            for m in sample if m["content"].strip()
+        )[:20000]
+
+        prompt = f"""Tu es l'analyste économique officiel de PAX HISTORIA FR.
+
+MESSAGES ÉCONOMIQUES RÉCENTS :
+{conversation}
+
+RAPPORT ÉCONOMIQUE COMPLET :
+
+💰 **TRANSACTIONS RÉCENTES**
+[Ventes de territoires, achats, échanges commerciaux avec montants]
+
+🗺️ **CARTE DES TERRITOIRES**
+[Qui possède quoi, qui a vendu quoi, acquisitions récentes]
+
+📈 **NATIONS LES PLUS RICHES**
+[Classement économique avec analyse des ressources et territoires]
+
+🤝 **ACCORDS COMMERCIAUX**
+[Partenariats économiques, blocus, embargos]
+
+⚠️ **DÉSÉQUILIBRES ÉCONOMIQUES**
+[Nations trop puissantes, trop faibles, risques d'instabilité]
+
+💡 **RECOMMANDATIONS**
+[Comment rééquilibrer l'économie du serveur]
+
+Rapport du {datetime.utcnow().strftime('%d/%m/%Y à %H:%M')} UTC"""
+        return await self.call(prompt)
+        

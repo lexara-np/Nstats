@@ -1,9 +1,6 @@
 """
-AI Module — Google Gemini 1.5 Pro
-1 000 000 tokens de contexte | 1500 requêtes/jour GRATUIT
-https://aistudio.google.com/app/apikey
-
-Alternative : Groq (Llama 3.3 70B) — ultra rapide, gratuit
+AI Module — Groq (Llama 3.3 70B)
+14 400 req/jour | 500 000 tokens/jour GRATUIT
 https://console.groq.com
 """
 
@@ -17,10 +14,11 @@ log = logging.getLogger("NationRP.AI")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GROQ_API_KEY   = os.getenv("GROQ_API_KEY")
-AI_PROVIDER    = os.getenv("AI_PROVIDER", "gemini")  # "gemini" ou "groq"
+AI_PROVIDER    = os.getenv("AI_PROVIDER", "groq")
 
-GEMINI_URL="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 
 SYSTEM_PROMPT = """Tu es l'analyste officiel du serveur Discord NationRP.
 Tu analyses les messages des joueurs, les échanges diplomatiques, économiques et militaires entre nations fictives.
@@ -58,13 +56,13 @@ class AIClient:
             "Content-Type":  "application/json",
         }
         payload = {
-            "model": "llama-3.3-70b-versatile",
+            "model": GROQ_MODEL,
             "messages": [
                 {"role": "system",  "content": SYSTEM_PROMPT},
                 {"role": "user",    "content": prompt},
             ],
             "temperature": 0.7,
-            "max_tokens":  2048,
+            "max_tokens":  1500,
         }
 
         async with aiohttp.ClientSession() as session:
@@ -94,7 +92,7 @@ class AIClient:
         if not messages:
             return "Aucun message à analyser pour ce salon."
 
-        sample = messages[:150]
+        sample = messages[:80]
         conversation = "\n".join(
             f"[{m['timestamp'][:10]}] {m['author']}: {m['content']}"
             for m in sample if m["content"].strip()
@@ -177,7 +175,7 @@ Rapport du {datetime.utcnow().strftime('%d/%m/%Y à %H:%M')} UTC"""
         return await self.call(prompt)
 
     async def generate_server_rapport(self, stats: dict, recent_messages: list) -> str:
-        sample = recent_messages[:400]
+        sample = recent_messages[:150]
         conversation = "\n".join(
             f"[#{m['channel']}] {m['author']}: {m['content']}"
             for m in sample if m["content"].strip()

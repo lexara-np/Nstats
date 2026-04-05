@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react"
 import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom"
 import Overview from "./pages/Overview"
-import Channels from "./pages/Channels"
+import Nations from "./pages/Nations"
 import Messages from "./pages/Messages"
 import Rapports from "./pages/Rapports"
 import Members from "./pages/Members"
 import "./styles/global.css"
 
 const NAV = [
-  { to: "/",          label: "Vue d'ensemble", icon: "◈" },
-  { to: "/channels",  label: "Salons",          icon: "⬡" },
-  { to: "/messages",  label: "Messages",         icon: "◇" },
-  { to: "/members",   label: "Membres",          icon: "◉" },
-  { to: "/rapports",  label: "Rapports IA",      icon: "✦" },
+  { to: "/",         label: "Vue d'ensemble", icon: "◈" },
+  { to: "/nations",  label: "Nations",         icon: "🌍" },
+  { to: "/messages", label: "Messages RP",     icon: "◇" },
+  { to: "/members",  label: "Membres",         icon: "◉" },
+  { to: "/rapports", label: "Rapports IA",     icon: "✦" },
 ]
 
 export default function App() {
@@ -20,22 +20,25 @@ export default function App() {
 
   useEffect(() => {
     fetch("/api/stats").then(r => r.json()).then(setStats).catch(() => {})
+    // Refresh toutes les 30 secondes
+    const interval = setInterval(() => {
+      fetch("/api/stats").then(r => r.json()).then(setStats).catch(() => {})
+    }, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   return (
     <Router>
       <div className="app">
-        {/* Ambient orbs */}
         <div className="orb orb-1" />
         <div className="orb orb-2" />
         <div className="orb orb-3" />
 
-        {/* Sidebar */}
         <aside className="sidebar">
           <div className="brand">
             <div className="brand-icon">⬡</div>
             <div>
-              <div className="brand-name">NationRP</div>
+              <div className="brand-name">Pax Historia</div>
               <div className="brand-sub">Analytics</div>
             </div>
           </div>
@@ -56,18 +59,17 @@ export default function App() {
 
           <div className="sidebar-footer">
             <div className="status-dot" />
-            <span>{stats ? `${stats.total_messages?.toLocaleString()} msgs` : "Connexion…"}</span>
+            <span>{stats ? `${stats.total_messages?.toLocaleString("fr-FR")} msgs` : "Connexion…"}</span>
           </div>
         </aside>
 
-        {/* Main */}
         <main className="main">
           <Routes>
-            <Route path="/"          element={<Overview  stats={stats} />} />
-            <Route path="/channels"  element={<Channels />} />
-            <Route path="/messages"  element={<Messages />} />
-            <Route path="/members"   element={<Members />} />
-            <Route path="/rapports"  element={<Rapports />} />
+            <Route path="/"         element={<Overview stats={stats} />} />
+            <Route path="/nations"  element={<Nations />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/members"  element={<Members />} />
+            <Route path="/rapports" element={<Rapports />} />
           </Routes>
         </main>
       </div>

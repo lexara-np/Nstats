@@ -19,7 +19,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GROQ_API_KEY   = os.getenv("GROQ_API_KEY")
 AI_PROVIDER    = os.getenv("AI_PROVIDER", "gemini")  # "gemini" ou "groq"
 
-GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent"
+GEMINI_URL="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions"
 
 SYSTEM_PROMPT = """Tu es l'analyste officiel du serveur Discord NationRP.

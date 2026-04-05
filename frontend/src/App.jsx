@@ -7,20 +7,22 @@ import Diplomatie from "./pages/Diplomatie"
 import Conflits   from "./pages/Conflits"
 import Messages   from "./pages/Messages"
 import Members    from "./pages/Members"
-import Rapports   from "./pages/Rapports"
-import Chat       from "./pages/Chat"
+import Rapports    from "./pages/Rapports"
+import Chat        from "./pages/Chat"
+import Classements from "./pages/Classements"
 import "./styles/global.css"
 
 const NAV = [
-  { to: "/",           label: "Vue d'ensemble", icon: "◈" },
-  { to: "/nations",    label: "Nations",         icon: "🌍" },
-  { to: "/timeline",   label: "Timeline RP",     icon: "📜" },
-  { to: "/diplomatie", label: "Diplomatie",       icon: "🤝" },
-  { to: "/conflits",   label: "Conflits",         icon: "⚔️" },
-  { to: "/messages",   label: "Messages RP",      icon: "◇" },
-  { to: "/members",    label: "Membres",          icon: "◉" },
-  { to: "/rapports",   label: "Rapports IA",      icon: "✦" },
-  { to: "/chat",       label: "Chat IA",          icon: "💬" },
+  { to: "/",            label: "Vue d'ensemble", icon: "◈" },
+  { to: "/nations",     label: "Nations",         icon: "🌍" },
+  { to: "/classements", label: "Classements",     icon: "🏆" },
+  { to: "/timeline",    label: "Timeline RP",     icon: "📜" },
+  { to: "/diplomatie",  label: "Diplomatie",       icon: "🤝" },
+  { to: "/conflits",    label: "Conflits",         icon: "⚔️" },
+  { to: "/messages",    label: "Messages RP",      icon: "◇" },
+  { to: "/members",     label: "Membres",          icon: "◉" },
+  { to: "/rapports",    label: "Rapports IA",      icon: "✦" },
+  { to: "/chat",        label: "Chat IA",          icon: "💬" },
 ]
 
 export default function App() {
@@ -71,6 +73,7 @@ export default function App() {
           <Routes>
             <Route path="/"           element={<Overview   stats={stats} />} />
             <Route path="/nations"    element={<Nations />} />
+            <Route path="/classements" element={<Classements />} />
             <Route path="/timeline"   element={<Timeline />} />
             <Route path="/diplomatie" element={<Diplomatie />} />
             <Route path="/conflits"   element={<Conflits />} />

@@ -87,11 +87,11 @@ class AIClient:
         if not messages:
             return "Aucun message à analyser pour ce salon."
 
-        sample = messages[:80]
+        sample = messages[:4000]
         conversation = "\n".join(
             f"[{m['timestamp'][:10]}] {m['author']}: {m['content']}"
             for m in sample if m["content"].strip()
-        )
+        )[:5000]
 
         # Détecte le type de salon pour adapter l'analyse
         canal_type = "général"
@@ -170,11 +170,11 @@ Rapport du {datetime.utcnow().strftime('%d/%m/%Y à %H:%M')} UTC"""
         return await self.call(prompt)
 
     async def generate_server_rapport(self, stats: dict, recent_messages: list) -> str:
-        sample = recent_messages[:150]
+        sample = recent_messages[:4000]
         conversation = "\n".join(
             f"[#{m['channel']}] {m['author']}: {m['content']}"
             for m in sample if m["content"].strip()
-        )[:10000]
+        )[:4000]
 
         top_channels = "\n".join(
             f"  #{c['name']} : {c['count']} messages"
@@ -240,7 +240,7 @@ Généré par le système NationStats Analytics"""
         return await self.call(prompt)
 
     async def generate_conseils(self, stats: dict, messages: list) -> str:
-        sample = messages[:300]
+        sample = messages[:4000]
 
         # Analyse les salons les moins actifs
         top_channels = stats.get("top_channels", [])
@@ -252,7 +252,7 @@ Généré par le système NationStats Analytics"""
         # Extrait un aperçu des derniers échanges
         apercu = "\n".join(
             f"[#{m['channel']}] {m['author']}: {m['content'][:100]}"
-            for m in sample[:100] if m["content"].strip()
+            for m in sample[:200] if m["content"].strip()
         )
 
         prompt = f"""Tu es le conseiller stratégique de PAX HISTORIA FR, serveur NationRP moderne français.
